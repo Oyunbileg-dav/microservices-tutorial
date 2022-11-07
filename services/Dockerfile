@@ -1,13 +1,12 @@
-FROM public.ecr.aws/docker/library/python:3.8-slim as builder
-WORKDIR app
-COPY .
-RUN pip install --user fastapi uvicorn boto3 flask pytest moto
-RUN python -m pytest test.py
+# syntax=docker/dockerfile:1
 
-FROM public.ecr.aws/docker/library/python:3.8-slim as app
-WORKDIR app
-COPY --from=builder /root/.local /root/.local
-COPY --from=builder .
-ENV PATH=/root/.local:$PATH
-EXPOSE 5000
-CMD ["python", "app.py"]
+FROM python:3.8-slim-buster
+
+WORKDIR /python-docker
+
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
+
+COPY . .
+
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
